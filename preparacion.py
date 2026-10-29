@@ -1,4 +1,5 @@
-# Encabezado: preparar variables para el modelo de riesgo
+
+# Preparar variables para el modelo de riesgo
 
 import numpy as np
 import pandas as pd
@@ -10,7 +11,10 @@ def crear_variables(datos):
     La predicción se realiza en el momento de la entrega del pedido.
     """
 
+    print("PREPARACION 1: inicio", flush=True)
+
     datos = datos.copy()
+    print("PREPARACION 2: copia de datos completada", flush=True)
 
     columnas_requeridas = [
         "order_purchase_timestamp",
@@ -42,7 +46,9 @@ def crear_variables(datos):
             f"Faltan columnas requeridas del contrato: {faltantes}"
         )
 
-    # Convertir fechas sin inventar valores faltantes
+    print("PREPARACION 3: columnas verificadas", flush=True)
+
+    # Convertir fechas
     columnas_fechas = [
         "order_purchase_timestamp",
         "order_approved_at",
@@ -52,12 +58,21 @@ def crear_variables(datos):
     ]
 
     for columna in columnas_fechas:
+        print(
+            f"PREPARACION 4: convirtiendo {columna}",
+            flush=True
+        )
+
         datos[columna] = pd.to_datetime(
             datos[columna],
             errors="coerce"
         )
 
+    print("PREPARACION 5: fechas convertidas", flush=True)
+
     variables = pd.DataFrame(index=datos.index)
+
+    print("PREPARACION 6: DataFrame creado", flush=True)
 
     # Variables de tiempo
     variables["dias_desde_compra"] = (
@@ -88,7 +103,9 @@ def crear_variables(datos):
         datos["order_purchase_timestamp"].dt.dayofweek
     )
 
-    # Variables numéricas del pedido
+    print("PREPARACION 7: variables de tiempo listas", flush=True)
+
+    # Variables numéricas
     columnas_numericas = [
         "n_items",
         "n_vendedores",
@@ -105,6 +122,8 @@ def crear_variables(datos):
             errors="coerce"
         )
 
+    print("PREPARACION 8: variables numéricas listas", flush=True)
+
     # Variables categóricas
     columnas_categoricas = [
         "estado_cliente",
@@ -120,10 +139,19 @@ def crear_variables(datos):
             .astype(str)
         )
 
+    print("PREPARACION 9: variables categóricas listas", flush=True)
+
     # Evitar valores infinitos
     variables = variables.replace(
         [np.inf, -np.inf],
         np.nan
+    )
+
+    print(
+        f"PREPARACION 10: proceso completado. "
+        f"Filas={variables.shape[0]}, "
+        f"columnas={variables.shape[1]}",
+        flush=True
     )
 
     return variables
