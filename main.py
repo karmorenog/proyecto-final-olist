@@ -51,12 +51,13 @@ def inicio():
     }
 
 
+
 @app.post("/riesgo")
 def predecir_riesgo(pedido: dict):
-    # Verificar que el pedido incluya todas las columnas necesarias
+    print("DIAGNOSTICO 1: solicitud recibida", flush=True)
+
     faltantes = [
-        columna
-        for columna in COLUMNAS_REQUERIDAS
+        columna for columna in COLUMNAS_REQUERIDAS
         if columna not in pedido
     ]
 
@@ -67,14 +68,21 @@ def predecir_riesgo(pedido: dict):
         )
 
     try:
-        # Convertir el pedido en DataFrame
+        print("DIAGNOSTICO 2: creando DataFrame", flush=True)
         datos = pd.DataFrame([pedido])
 
-        # Aplicar la preparación de variables del proyecto
+        print("DIAGNOSTICO 3: preparando variables", flush=True)
         variables = crear_variables(datos)
+        print(
+            f"DIAGNOSTICO 4: variables listas, forma={variables.shape}",
+            flush=True
+        )
 
-        # Calcular la probabilidad de una mala reseña
-        probabilidad = float(modelo.predict_proba(variables)[0, 1])
+        print("DIAGNOSTICO 5: ejecutando predict_proba", flush=True)
+        probabilidades = modelo.predict_proba(variables)
+        print("DIAGNOSTICO 6: prediccion completada", flush=True)
+
+        probabilidad = float(probabilidades[0, 1])
 
         return {
             "probabilidad": round(probabilidad, 4),
@@ -85,6 +93,7 @@ def predecir_riesgo(pedido: dict):
     except HTTPException:
         raise
     except Exception as error:
+        print(f"ERROR DE PREDICCION: {error!r}", flush=True)
         raise HTTPException(
             status_code=500,
             detail=f"Error al calcular el riesgo: {str(error)}"
