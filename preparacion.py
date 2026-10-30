@@ -58,15 +58,41 @@ def crear_variables(datos):
     ]
 
     for columna in columnas_fechas:
+
         print(
             f"PREPARACION 4: convirtiendo {columna}",
             flush=True
         )
 
-        datos[columna] = pd.to_datetime(
-            datos[columna],
-            errors="coerce"
-        )
+        try:
+            valor = datos[columna].iloc[0]
+
+            print(
+                f"VALOR RECIBIDO: {valor!r}",
+                flush=True
+            )
+
+            print(
+                f"TIPO RECIBIDO: {type(valor)}",
+                flush=True
+            )
+
+            datos[columna] = pd.to_datetime(
+                datos[columna],
+                errors="coerce"
+            )
+
+            print(
+                f"CONVERSION EXITOSA: {columna}",
+                flush=True
+            )
+
+        except Exception as error:
+            print(
+                f"ERROR CONVIRTIENDO {columna}: {error!r}",
+                flush=True
+            )
+            raise
 
     print("PREPARACION 5: fechas convertidas", flush=True)
 
