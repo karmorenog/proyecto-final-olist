@@ -1,66 +1,70 @@
 
 import streamlit as st
-import pandas as pd
-import requests
-from pathlib import Path
 
 # --------------------------------------------------
 # CONFIGURACIÓN GENERAL
 # --------------------------------------------------
 
 st.set_page_config(
-    page_title="Olist - Análisis de riesgo",
+    page_title="Olist - Plataforma de análisis",
     page_icon="📦",
     layout="wide"
 )
 
-API_URL = st.secrets.get(
-    "API_URL",
-    "https://api-riesgo-olist.onrender.com"
-)
-
-BASE_DIR = Path(__file__).resolve().parent
-
 # --------------------------------------------------
-# MENÚ DE NAVEGACIÓN
-# --------------------------------------------------
-
-paginas = st.navigation([
-    st.Page("streamlit_app.py", title="Inicio", icon="🏠"),
-    st.Page("pages/1_Riesgo.py", title="Riesgo de pedidos", icon="📊"),
-    st.Page("pages/2_Comentarios.py", title="Comentarios", icon="💬"),
-    st.Page("pages/3_Pronostico.py", title="Pronóstico", icon="📈"),
-    st.Page("pages/4_Model_Card.py", title="Model Card", icon="📋")
-])
-
-# --------------------------------------------------
-# PÁGINA DE INICIO
+# PÁGINA PRINCIPAL
 # --------------------------------------------------
 
 st.title("📦 Olist - Plataforma de análisis")
-st.subheader("Análisis de riesgo de malas reseñas y pronóstico de pedidos")
 
-st.markdown("""
-Bienvenido a la plataforma de análisis del proyecto Olist.
+st.subheader(
+    "Análisis de riesgo de malas reseñas y pronóstico de pedidos"
+)
 
-Esta aplicación integra herramientas para:
+st.markdown(
+    """
+    Bienvenido a la plataforma de análisis del proyecto Olist.
 
-- Evaluar el riesgo de malas reseñas de los pedidos.
-- Explorar los resultados del análisis de comentarios.
-- Consultar el pronóstico diario de pedidos de junio de 2018.
-- Revisar la documentación del modelo predictivo.
-""")
+    Esta aplicación integra cuatro herramientas:
 
-st.divider()
+    - **Riesgo de pedidos:** estima la probabilidad de recibir una mala reseña.
+    - **Comentarios:** compara el sentimiento del texto con las estrellas.
+    - **Pronóstico:** presenta la estimación de pedidos diarios de junio de 2018.
+    - **Ficha del modelo:** explica el funcionamiento, las limitaciones y el uso responsable del modelo.
+    """
+)
 
-col1, col2 = st.columns(2)
+st.info(
+    "Selecciona una de las cuatro secciones en el menú lateral."
+)
 
-with col1:
-    st.metric("Pronóstico", "Junio 2018")
+# --------------------------------------------------
+# NAVEGACIÓN ENTRE PÁGINAS
+# --------------------------------------------------
 
-with col2:
-    st.metric("API", "FastAPI + Render")
-
-st.info("Selecciona una sección en el menú lateral para comenzar.")
+paginas = st.navigation(
+    [
+        st.Page(
+            "pages/1_Riesgo.py",
+            title="Riesgo de pedidos",
+            icon="📊"
+        ),
+        st.Page(
+            "pages/2_Comentarios.py",
+            title="Comentarios",
+            icon="💬"
+        ),
+        st.Page(
+            "pages/3_Pronostico.py",
+            title="Pronóstico",
+            icon="📈"
+        ),
+        st.Page(
+            "pages/4_Model_Card.py",
+            title="Ficha del modelo",
+            icon="📋"
+        ),
+    ]
+)
 
 paginas.run()
