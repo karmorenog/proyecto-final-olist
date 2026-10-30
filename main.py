@@ -1,40 +1,23 @@
 
-import sys
 import json
 from pathlib import Path
 
-import pandas as pd
-import numpy as np
 import joblib
-
+import pandas as pd
 from fastapi import FastAPI, HTTPException
+
 from preparacion import crear_variables
 
 
-# ==========================================
-# DIAGNOSTICO DE VERSIONES
-# ==========================================
-
-print("VERSION PYTHON:", sys.version, flush=True)
-print("VERSION PANDAS:", pd.__version__, flush=True)
-print("VERSION NUMPY:", np.__version__, flush=True)
-
-
-# ==========================================
-# CARGA DEL MODELO Y UMBRAL
-# ==========================================
-
+# Carpeta donde están los archivos de la API
 CARPETA = Path(__file__).resolve().parent
 
+# Cargar el modelo y el umbral
 modelo = joblib.load(CARPETA / "modelo_riesgo.joblib")
 
 with open(CARPETA / "umbral_riesgo.json", "r", encoding="utf-8") as archivo:
     umbral = json.load(archivo)["umbral_riesgo"]
 
-
-# ==========================================
-# CONFIGURACION DE FASTAPI
-# ==========================================
 
 app = FastAPI(
     title="API de riesgo de malas reseñas",
@@ -43,10 +26,7 @@ app = FastAPI(
 )
 
 
-# ==========================================
-# COLUMNAS REQUERIDAS
-# ==========================================
-
+# Columnas requeridas para preparar las variables
 COLUMNAS_REQUERIDAS = [
     "order_purchase_timestamp",
     "order_approved_at",
@@ -67,10 +47,6 @@ COLUMNAS_REQUERIDAS = [
 ]
 
 
-# ==========================================
-# RUTA PRINCIPAL
-# ==========================================
-
 @app.get("/")
 def inicio():
     return {
@@ -79,14 +55,8 @@ def inicio():
     }
 
 
-# ==========================================
-# PREDICCION DE RIESGO
-# ==========================================
-
 @app.post("/riesgo")
 def predecir_riesgo(pedido: dict):
-
-    print("DIAGNOSTICO 1: solicitud recibida", flush=True)
 
     faltantes = [
         columna for columna in COLUMNAS_REQUERIDAS
@@ -100,24 +70,11 @@ def predecir_riesgo(pedido: dict):
         )
 
     try:
-        print("DIAGNOSTICO 2: creando DataFrame", flush=True)
-
         datos = pd.DataFrame([pedido])
-
-        print("DIAGNOSTICO 3: preparando variables", flush=True)
 
         variables = crear_variables(datos)
 
-        print(
-            f"DIAGNOSTICO 4: variables listas, forma={variables.shape}",
-            flush=True
-        )
-
-        print("DIAGNOSTICO 5: ejecutando predict_proba", flush=True)
-
         probabilidades = modelo.predict_proba(variables)
-
-        print("DIAGNOSTICO 6: prediccion completada", flush=True)
 
         probabilidad = float(probabilidades[0, 1])
 
@@ -131,7 +88,6 @@ def predecir_riesgo(pedido: dict):
         raise
 
     except Exception as error:
-
         print(f"ERROR DE PREDICCION: {error!r}", flush=True)
 
         raise HTTPException(
